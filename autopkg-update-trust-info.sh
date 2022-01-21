@@ -7,7 +7,7 @@
 ## Update Repos and Update Local Overrides trust-infos then run Recipes.
 ## ----------------------------------------------------------------------------------
 ##
-version="0.7" #
+version="0.8" #
 
 ##########################################################################################
 if [ "$3" == "/" ]; then
@@ -71,6 +71,7 @@ function check_trust_info() {
 
 function repos_updates() {
   	log_it " Updating recipes repos"
+  	autopkgr_stop ## let's stop autopkgr.app
 	#reciperepos=( $( ${cmd_defaults} read com.github.autopkg RECIPE_REPOS | grep 'URL' | awk '{print $3}' | sed 's/"//g' | sed 's/;//g' ) )
 	reciperepos=( $( "${cmd_autopkg}" repo-list | awk '{print $2}' | sed 's/(//g;s/)//g' ) )
 	for myrepo in "${reciperepos[@]}" ; do
@@ -89,7 +90,22 @@ function run_local_overrides() {
 
 		#rebuild catalog
 		"${cmd_autopkg}" run com.github.autopkg.munki.makecatalogs
+		autopkgr_start ## let's start autopkrg.app back
 }
+
+function autopkgr_stop {
+ ## Quit Autopkgr.app
+ echo "Quitting autopkgr"
+ osascript -e 'tell application "autopkgr" to quit' ; echo
+}
+
+function autopkgr_start {
+ ## Start Autopkgr.app
+ echo "Starting autopkgr"
+ osascript -e 'tell application "autopkgr" to activate' ; echo
+}
+
+
 
 function do_it {
 	log_it ""
@@ -108,4 +124,4 @@ exit 0
 
 #################### TODOS  ##############################################################
 ## create log dir and touch log file first - determine if in user or computer library..
-
+## Deal with errors !
