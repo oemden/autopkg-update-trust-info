@@ -7,7 +7,7 @@
 ## Update Repos and Update Local Overrides trust-infos then run Recipes.
 ## ----------------------------------------------------------------------------------
 ##
-version="0.8" #
+version="0.9" # using autopkg repo-update all.
 
 ##########################################################################################
 if [ "$3" == "/" ]; then
@@ -72,6 +72,12 @@ function check_trust_info() {
 function repos_updates() {
   	log_it " Updating recipes repos"
   	autopkgr_stop ## let's stop autopkgr.app
+	"${cmd_autopkg}" repo-update all
+}
+
+function repos_updates.old() {
+  	log_it " Updating recipes repos"
+  	autopkgr_stop ## let's stop autopkgr.app
 	#reciperepos=( $( ${cmd_defaults} read com.github.autopkg RECIPE_REPOS | grep 'URL' | awk '{print $3}' | sed 's/"//g' | sed 's/;//g' ) )
 	reciperepos=( $( "${cmd_autopkg}" repo-list | awk '{print $2}' | sed 's/(//g;s/)//g' ) )
 	for myrepo in "${reciperepos[@]}" ; do
@@ -105,15 +111,13 @@ function autopkgr_start {
  osascript -e 'tell application "autopkgr" to activate' ; echo
 }
 
-
-
 function do_it {
 	log_it ""
 	log_it "$(date '+%Y.%m.%d %H:%M:%S') - autopkg routine "
 	repos_updates # update Master repos
 	get_recipes_overrides # find local overrides
 	check_trust_info # check local overrides trust info
-	run_local_overrides # run overrides
+	#run_local_overrides # run overrides
 }
 
 #################### DO IT ###############################################################
